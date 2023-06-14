@@ -1,7 +1,10 @@
 from typing import Optional
 from models.models import Users, Roles
 from fastapi import FastAPI
+from trading_app.api.models.models import Trade, User
+from typing import List
 
+from fastapi import FastAPI
 
 app = FastAPI(title="Trading_app")
 
