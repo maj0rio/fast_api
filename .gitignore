@@ -1,7 +1,9 @@
-/api/venv/
-/api/.env
-/api/test.py
+venv/
+.env
 api/data/
-api/models/__pycache__/
+models/__pycache__/
 .idea/
-api/__pycache__/
+__pycache__/
+migrations/__pycache__
+migrations/versions/__pycache__
+.gitignore
