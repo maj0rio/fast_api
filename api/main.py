@@ -1,12 +1,12 @@
 from typing import Optional
-from models.models import User
+from models.models import Users, Roles
 from fastapi import FastAPI
 
 
 app = FastAPI(title="Trading_app")
 
 
-@app.get("/users/{user_id}", response_model=Optional[list[User]])
+@app.get("/users/{user_id}", response_model=Optional[list[Users]])
 def get_user(user_id: int):
     content = [user for user in users if user.get('id') == user_id]
     if content:
