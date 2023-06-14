@@ -1,0 +1,7 @@
+/api/venv/
+/api/.env
+/api/test.py
+api/data/
+api/models/__pycache__/
+.idea/
+api/__pycache__/
