@@ -1,34 +1,36 @@
-from typing import Optional
-from models.models import Users, Roles
-from fastapi import FastAPI
-from trading_app.api.models.models import Trade, User
-from typing import List
-
-from fastapi import FastAPI
-
-app = FastAPI(title="Trading_app")
+from contextlib import contextmanager
+from config import DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME
+import sqlalchemy as sa
+from sqlalchemy.orm import sessionmaker
+from data.data import fake_roles, fake_users
+from models.models import Roles, Users
 
 
-@app.get("/users/{user_id}", response_model=Optional[list[Users]])
-def get_user(user_id: int):
-    content = [user for user in users if user.get('id') == user_id]
-    if content:
-        return content
-    else:
-        return None
+engine = sa.create_engine(
+    f'postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}',
+    echo=True,
+)
+
+DBSession = sessionmaker(engine)
 
 
-@app.post("/users/{user_id}")
-def change_user_name(user_id: int, new_name: str):
-    current_user = list(filter(lambda user: user.get("id") == user_id, users))
-    if current_user:
-        current_user[0]['name'] = new_name
-        return {'status_code': 200, 'content': current_user}
-    else:
-        return {'status_code': 400, 'content': None}
+@contextmanager
+def session_scope():
+    """Provides a transactional scope around a series of operations."""
+    session = DBSession()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
 
 
-# @app.post("/trades")
-# def add_post(trades: List[Trade]):
-#     fake_trades.extend(trades)
-#     return {"status": 200, "data": fake_trades}
+if __name__ == '__main__':
+    with session_scope() as s:
+        all_users = s.query(Users.id).filter(Users.username.like('user%')).order_by(Users.id.desc())
+        all_users = all_users.add_columns(Users.username, Users.email, Users.password)
+        for current_user in all_users:
+            print(current_user)
